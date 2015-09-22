@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html><TITLE>Logo Experiment</TITLE>
+
+<head>
+<!--adding JQuery library-->
+<!--this is a DESKTOP JQuery, so this will not work much on the modern androids-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!--setting charset to utf-8 unicode in case symbols are needed-->
+<meta charset="utf-8">
+<!--CSS Animations-->
+<link rel="stylesheet" href="animate.css">
+<script>
+"use strict";
+
+function Box(width, height, style, distance, curve, rotation, increment) {//box object
+this.width = width;
+this.height = height;
+this.style = style;
+this.distance = distance;
+this.curve = curve;
+this.rotation = rotation;
+this.increment = increment;
+};
+
+var lbx = new Box(256, 256, "bx", 20, 10, 10, 10); //"lbx" is "logo box"
+var pressCount = 0; //this counts how many times you pressed the button
+
+$(document).ready(function(){//appending a div to the <body> tag directly
+$(".sub").hide();
+$(".sub2").hide();
+$("<div class='" + lbx.style + "' style='width:" + lbx.width + "px;height:" + lbx.height + "px;'>").appendTo("body");
+$(".bn").click(function(){
+pressCount = pressCount + 1;
+if (pressCount > 19) {
+$(".sub2").show();
+}
+$("#count").html(pressCount);
+$(".sub").show();
+var lbxpos = $(".bx").position();
+if (lbxpos.top < window.innerHeight/5) {
+$(".bx").animate({left:'+=' + lbx.distance + 'px','marginTop':'+=' + lbx.curve + 'px'});
+} else {
+$(".bx").animate({left:'+=' + lbx.distance + 'px','marginTop':'-=' + lbx.curve + 'px'});
+}
+$(".bx").css('-webkit-transform','rotate('+lbx.rotation+'deg)');
+$(".bx").css('-moz-transform','rotate('+lbx.rotation+'deg)');
+$(".bx").css('transform','rotate('+lbx.rotation+'deg)');
+lbx.rotation = lbx.rotation + lbx.increment;
+});
+});
+</script>
+</head>
+
+<style>
+body {
+display: block;
+background-color: white;
+}
+.bx { /* the box... */
+background-image: url("metal.png");
+background-size: cover;
+background-color: #333333; /* in case the image fails to load */
+border-width: 1.5px;
+border-radius: 6px;
+border-style: solid;
+border-color: #222222;
+box-shadow: 2px 2px 2px #111111;
+position: absolute;
+animation: slideInLeft 1s;
+}
+.bn {
+width: 150px;
+font-family: sans-serif;
+text-align: center;
+height: auto;
+background-color: #222222;
+color: white;
+border-style: solid;
+border-width: 3px;
+border-color: #DDDDDD;
+box-shadow: 2px 2px 2px #111111;
+border-radius: 5px;
+padding: 0px;
+margin: 0px;
+animation: slideInLeft 1s;
+}
+.bn:hover {
+background-color: white;
+color: #222222;
+border-color: #222222;
+}
+.head {
+font-family: sans-serif;
+margin-left: 5px;
+font-weight: lighter;
+animation: slideInLeft 1s;
+}
+.sub {
+font-family: sans-serif;
+margin-left: 5px;
+font-weight: lighter;
+}
+.sub2 {
+font-family: sans-serif;
+margin-left: 5px;
+font-weight: lighter;
+}
+</style>
+
+<body>
+
+<h1 class="head">Press the button below to move the box</h1>
+
+<span class="sub">You have pressed the button <span class="sub" id="count"></span><span class="sub"> times.</span></span>
+<span class="sub2">(okay you have been mashing that button lol)</span>
+
+<BR><BR>
+
+<button class="bn"><h1>Increment</h1></button>
+
+<BR><BR>
+
+</body>
+
+</html>
