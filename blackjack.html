@@ -1,0 +1,845 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd"><TITLE>BLACKJACK</TITLE>
+
+<!--/*****JS BLACKJACK by CA1K******/-->
+
+<HEAD>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Website character set -->
+<meta charset="utf-8">
+</HEAD>
+
+<script> //FADE IN SCRIPT
+$(document).ready(function(){
+$("*").hide();
+$("*").fadeIn();
+});
+</script>
+
+<style>
+body {
+font-family: sans-serif;
+margin: 0px;
+}
+kbd {
+font-family: sans-serif;
+}
+.header {
+background-color: #222222;
+box-shadow: 2px 2px 2px #111111;
+color: white;
+padding: 20px;
+}
+.startbtn {
+background-color: black;
+border-width: 2px;
+border-color: #444444;
+color: white;
+border-radius: 5px;
+padding: 5px;
+}
+.startbtn:hover {
+background-color: white;
+color: #444444;
+}
+select {
+background-color: black;
+border-width: 2px;
+border-color: #444444;
+color: white;
+border-radius: 5px;
+}
+.indent {
+margin-left: 10px;
+background-color: #222222;
+padding: 10px;
+border-top-left-radius: 8px;
+border-bottom-left-radius: 8px;
+}
+</style>
+
+<BODY bgcolor="#004802" background="Playing-cardsNotWhite.png">
+
+<TABLE BORDER=0 CELLPADDING=5>
+
+<TR>
+
+<TD class="header">
+
+<font face="sans-serif" size=6>Welcome to CA1K's BlackJack</font>
+<BR>
+Version 11
+<BR><BR><BR>
+
+</TD>
+
+<TD class="header">
+
+<!--WELCOME SCREEN, Start out the game-->
+
+<kbd>How much money is in your bank?: </kbd>
+
+<SELECT NAME="bankOpt" SIZE=1
+onchange="bankSelect(this.options[selectedIndex].value);">
+<OPTION VALUE="0" SELECTED>Please Select A Bank Amount</OPTION>
+<OPTION VALUE="200">$200 U.S.</OPTION>
+<OPTION VALUE="500">$500 U.S.</OPTION>
+<OPTION VALUE="1000">$1,000 U.S.</OPTION>
+<OPTION VALUE="2000">$2,000 U.S.</OPTION>
+<OPTION VALUE="5000">$5,000 U.S.</OPTION>
+<OPTION VALUE="10000">$10,000 U.S.</OPTION>
+</SELECT>
+
+<P>
+
+<font color="white"><kbd>How much are you going to bet?: </kbd></font>
+
+<SELECT NAME="betOpt" SIZE=1
+onchange="betSelect(this.options[selectedIndex].value);">
+<OPTION VALUE="0" SELECTED>Please Select A Bet Amount</OPTION>
+<OPTION VALUE="2">$2 U.S.</OPTION>
+<OPTION VALUE="5">$5 U.S.</OPTION>
+<OPTION VALUE="10">$10 U.S.</OPTION>
+<OPTION VALUE="50">$50 U.S.</OPTION>
+<OPTION VALUE="100">$100 U.S.</OPTION>
+<OPTION VALUE="500">$500 U.S.</OPTION>
+</SELECT>
+
+<P>
+
+<form>
+<font color=white><kbd>What is your name?: </kbd></font><input type="text" id="myname">
+</form>
+
+<P id="call"></P>
+
+<P>
+
+<button onclick="nameCheck()" class="startbtn">Deal</button>
+
+</TD></TR></TABLE>
+
+<P>
+
+<div class="indent">
+<font face="sans-serif" size=4 color=white><i><b>How to play: (For beginners)</b></i></font>
+
+<P>
+
+<font face="sans-serif" size=4 color=white>You start out with <i>two cards</i>.
+The program will automaticlly show the value of your two cards put together.</font>
+
+<BR>
+
+<font face="sans-serif" size=4 color=white>Now if your value seems low, you can push the "hit" button.
+If you think your value is high enough, press the "stay" button.</font>
+
+<BR>
+
+<font face="sans-serif" size=4 color=white>If your value its "21", you will automaticlly stay and you win.
+If you start out with the value "21", that is called a Blackjack and you've won.</font>
+
+<P>
+
+<font face="sans-serif" size=4 color=white>This game can also use the "split" function.</font>
+
+<P>
+
+<font face="sans-serif" size=4 color=yellow><i><b>NOTICE!</b></i></font>
+
+<P>
+
+<font face="sans-serif" size=4 color=white>This game will not work in firefox because of a glitch.</font>
+
+<BR>
+
+<font face="sans-serif" size=4 color=white>The glitch is that if you're on the starting deck, you cannot hit or stand.
+
+</div>
+
+<script>//THE MAIN BLACKJACK SCRIPT
+
+//*****START OF SCRIPT*****
+
+var bankStart = 0;
+var currentBank = 0;
+function bankSelect(bankAmt)
+{
+bankStart = bankAmt;
+currentBank = bankStart;
+//document.write(bankStart);
+//stand();
+}
+
+var bet = 0;
+var curBet = 0;
+var sbet; //a return bet in case the split hand is done...
+function betSelect(betAmt)
+{
+curBet = betAmt;
+bet = curBet;
+sbet = bet;
+}
+
+//CREATE PLAYING CARDS DATABASE AND FILL IT WITH CARDS
+var card = new Array();
+
+//nested database arrays inside card database
+//database is the length of a deck of cards
+
+card[1] = ["A", "of Spades", "♠", 11, 0];//symbols are shown with only Unicode UTF-8
+card[2] = ["2", "of Spades", "♠", 2, 0];//the 3rd number is used for checking to see if it is used or not
+card[3] = ["3", "of Spades", "♠", 3, 0];//we abreviate Ace, King, Queen, and Jack because we cannot fit the 3-5 letter names in the card...
+card[4] = ["4", "of Spades", "♠", 4, 0];
+card[5] = ["5", "of Spades", "♠", 5, 0];
+card[6] = ["6", "of Spades", "♠", 6, 0];
+card[7] = ["7", "of Spades", "♠", 7, 0];
+card[8] = ["8", "of Spades", "♠", 8, 0];
+card[9] = ["9", "of Spades", "♠", 9, 0];
+card[10] = ["10", "of Spades", "♠", 10, 0];
+card[11] = ["A", "of Clubs", "♣", 11, 0];
+card[12] = ["2", "of Clubs", "♣", 2, 0];
+card[13] = ["3", "of Clubs", "♣", 3, 0];
+card[14] = ["4", "of Clubs", "♣", 4, 0];
+card[15] = ["5", "of Clubs", "♣", 5, 0];
+card[16] = ["6", "of Clubs", "♣", 6, 0];
+card[17] = ["7", "of Clubs", "♣", 7, 0];
+card[18] = ["8", "of Clubs", "♣", 8, 0];
+card[19] = ["9", "of Clubs", "♣", 9, 0];
+card[20] = ["10", "of Clubs", "♣", 10, 0];
+card[21] = ["A", "of Diamonds", "♦", 11, 0];
+card[22] = ["2", "of Diamonds", "♦", 2, 0];
+card[23] = ["3", "of Diamonds", "♦", 3, 0];
+card[24] = ["4", "of Diamonds", "♦", 4, 0];
+card[25] = ["5", "of Diamonds", "♦", 5, 0];
+card[26] = ["6", "of Diamonds", "♦", 6, 0];
+card[27] = ["7", "of Diamonds", "♦", 7, 0];
+card[28] = ["8", "of Diamonds", "♦", 8, 0];
+card[29] = ["9", "of Diamonds", "♦", 9, 0];
+card[30] = ["10", "of Diamonds", "♦", 10, 0];
+card[31] = ["A", "of Hearts", "♥", 11, 0];
+card[32] = ["2", "of Hearts", "♥", 2, 0];
+card[33] = ["3", "of Hearts", "♥", 3, 0];
+card[34] = ["4", "of Hearts", "♥", 4, 0];
+card[35] = ["5", "of Hearts", "♥", 5, 0];
+card[36] = ["6", "of Hearts", "♥", 6, 0];
+card[37] = ["7", "of Hearts", "♥", 7, 0];
+card[38] = ["8", "of Hearts", "♥", 8, 0];
+card[39] = ["9", "of Hearts", "♥", 9, 0];
+card[40] = ["10", "of Hearts", "♥", 10, 0];
+card[41] = ["J", "of Spades", "♠", 10, 0];
+card[42] = ["Q", "of Spades", "♠", 10, 0];
+card[43] = ["K", "of Spades", "♠", 10, 0];
+card[44] = ["J", "of Clubs", "♣", 10, 0];
+card[45] = ["Q", "of Clubs", "♣", 10, 0];
+card[46] = ["K", "of Clubs", "♣", 10, 0];
+card[47] = ["J", "of Diamonds", "♦", 10, 0];
+card[48] = ["Q", "of Diamonds", "♦", 10, 0];
+card[49] = ["K", "of Diamonds", "♦", 10, 0];
+card[50] = ["J", "of Hearts", "♥", 10, 0];
+card[51] = ["Q", "of Hearts", "♥", 10, 0];
+card[52] = ["K", "of Hearts", "♥", 10, 0];
+
+/*Our first/starting game values, I cannot declare them again because
+these variables are global variables*/
+// CREATE DATABASE ARRAYS FOR THE DEALER AND PLAYER HANDS
+var dealerCards = new Array(); //the dealers hand...
+var playerCards = new Array(); //the players hand...
+var playerCardsSplit = new Array(); //this is an appended second player hand via split function
+//CREATE VALUES FOR DEALER CARDS
+var dealerTotal = 0;
+var dealerHits = 0;
+var dealerAces = 0; //ace counter
+var dealerAcesTotal = 0;
+//CREATE VALUES FOR PLAYER CARDS
+var playerTotal = 0; //your original total of points you have
+var playerSplitTotal = 0;
+var playerHits = 0;
+var playerSplitHits = 0;
+var playerAces = 0;
+var playerSplitAces = 0;
+var playerSplitAcesHits = 0;
+var playerAcesTotal = 0; //our modified total of points
+var playerSplitAcesTotal = 0;
+var issplit = false; //determines if player used split function
+var won; //this is a 3 way boolean, using strings to determine the win and loss between a split hand
+var handWon = false;
+var hand2Won = false;
+var handPush =  false;
+var hand2Push = false;
+//our username variables
+var box;
+var name;
+var handText = ""; //text response to winning or losing hand
+
+function nameCheck()
+{
+box = document.getElementById("myname");
+name = box.value;
+try
+{
+if (name=="")
+{
+throw "Undefined name";
+}
+alert("Welcome " + name + ".");
+dealCards();
+}
+//END OF TRY
+
+catch(err)
+{
+alert("Error: " + err);
+}
+//END OF CATCH
+
+}
+//END OF NAMECHECK
+
+//****DEAL THE FIRST CARDS LOOP****
+function dealCards(){
+
+//RESET THE CARD VALUES FOR THE NEW HAND
+dealerTotal = 0;
+dealerHits = 0;
+dealerAces = 0;
+dealerAcesTotal = 0;
+playerTotal = 0;
+playerSplitTotal = 0;
+playerHits = 0;
+playerSplitHits = 1;
+playerAces = 0;
+playerAcesTotal = 0;
+bet = sbet;
+won = "";
+handWon = false;
+hand2Won = false;
+handPush =  false;
+hand2Push = false;
+issplit = false;
+
+//DEAL THE FIRST CARDS IN THE HAND WITH A LOOP
+for (i = 0; i < 2; i++)
+{
+//deal random cards to dealer and player card databases
+var randA = Math.floor((Math.random()*52)+1);//for the dealer
+dealerCards[dealerHits] = card[randA];
+dealerTotal = (dealerTotal + dealerCards[dealerHits][3]);
+if (dealerCards[dealerHits][3] == 11){dealerAces = (dealerAces + 1);}
+dealerHits = (dealerHits + 1)
+randA = Math.floor((Math.random()*52)+1);//for the player
+playerCards[playerHits] = card[randA];
+playerTotal = (playerTotal + playerCards[playerHits][3]);
+playerAcesTotal = playerTotal;
+if (playerCards[playerHits][3] == 11){playerAces = (playerAces + 1);}
+playerHits = (playerHits + 1);
+}
+printCards();
+}
+//deals the first cards after the deal function is loaded
+//dealCards(); this would auto-launch deal cards if not for welcome screen
+//we fit the card dealing in a function so we can repeat the game
+
+//the special printCards() function designed for the split rule
+function splitPrint()
+{
+document.open();
+document.clear();
+document.write("</kbd></font>");
+//start the table for the card cell loops
+document.write("<BODY bgcolor=green>");
+document.write("<table cellspacing=10><tr id=\"tr1\"><tr id=\"tr2\"><tr id=\"tr3\"><tr id=\"tr4\"></table>");
+playerCardsSplit[0] = playerCards[1];
+//***print dealer cards
+//NOTE THAT THE DEALER ROW WILL NOT SPLIT, ONLY YOU ARE SPLITTING YOUR HAND
+//start the first card table cell
+$("#tr1").append("<TD id=\"startcard\" style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=#AC0000 ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+$("#startcard").append("<font style=\"font-family:sans-serif;color:white;font-size:32px;\">CA1K</font>");
+$("#tr1").append("</TD>");
+//start the table cell
+$("#tr1").append("<TD id='dtd' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (dealerCards[1][2] == "♥"){$("#dtd").append("<FONT style=\"color:red;\" size=7>"+dealerCards[1][0] + " " + dealerCards[1][2]);}else{
+if (dealerCards[1][2] == "♦"){$("#dtd").append("<FONT style=\"color:red;\" size=7>"+dealerCards[1][0] + " " + dealerCards[1][2]);}
+else{$("#dtd").append("<FONT style=\"color:black;\" size=7>"+dealerCards[1][0] + " " + dealerCards[1][2]);}}
+//writing dealer cards...
+$("#dtd").append("<BR><FONT SIZE=2 color=black>");
+$("#dtd").append(dealerCards[1][0] + " " + dealerCards[1][1]);
+$("#dtd").append("<BR><FONT SIZE=3 color=black>");
+$("#dtd").append("<P>");
+$("#dtd").append("<kbd>Value is " + dealerCards[1][3]);
+$("#dtd").append("<P>");
+$("#dtd").append("<kbd>for Dealer");
+$("#tr1").append("</TD>");
+//***end dealer cards
+for (i = 0; i < playerAces; i++)
+{
+if (playerAcesTotal > 21){playerAcesTotal = (playerAcesTotal - 10);}
+}
+for (i = 0; i < playerSplitAces; i++)
+{
+if (playerSplitTotal > 21){playerSplitTotal = (playerSplitTotal - 10);}
+}
+playerAcesTotal = playerCards[0][3];
+for (i = 2; i < playerHits; i++){
+playerAcesTotal = playerAcesTotal + playerCards[i][3];
+}
+playerSplitTotal = playerCardsSplit[0][3];
+for (i = 1; i < playerSplitHits; i++){
+playerSplitTotal = playerSplitTotal + playerCardsSplit[i][3];
+}
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player = " + playerAcesTotal + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player (Row 2) = " + playerSplitTotal + "</TD>");
+$("#tr2").append("<TD align=center><button onclick=\"\hitMe\(\)\">Hit</button></TD>");
+$("#tr2").append("<TD><button onclick=\"stand\(\)\">Stand</button></TD>");
+//***end of mid row
+//start the table cell
+$("#tr3").append("<TD id='ptd1' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCards[0][2] == "♥"){$("#ptd1").append("<FONT style=\"color:red;\" size=7>"+playerCards[0][0] + " " + playerCards[0][2]);}else{
+if (playerCards[0][2] == "♦"){$("#ptd1").append("<FONT style=\"color:red;\" size=7>"+playerCards[0][0] + " " + playerCards[0][2]);}
+else{$("#ptd1").append("<FONT style=\"color:black;\" size=7>"+playerCards[0][0] + " " + playerCards[0][2]);}}
+//print player cards
+//the first card...
+$("#ptd1").append("<BR><FONT SIZE=2 color=black>");
+$("#ptd1").append(playerCards[0][0] + " " + playerCards[0][1]);
+$("#ptd1").append("<BR><FONT SIZE=3 color=black>");
+$("#ptd1").append("<P>");
+$("#ptd1").append("<kbd>Value is</kbd> " + playerCards[0][3]);
+$("#ptd1").append("<P>");
+$("#ptd1").append("<kbd>for Player</kbd>");
+$("#tr3").append("</TD>");
+//the second row...
+$("#tr4").append("<TD id='std1' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+if (playerCardsSplit[0][2] == "♥"){$("#std1").append("<FONT style=\"color:red;\" size=7>"+playerCardsSplit[0][0] + " " + playerCardsSplit[0][2]);}else{
+if (playerCardsSplit[0][2] == "♦"){$("#std1").append("<FONT style=\"color:red;\" size=7>"+playerCardsSplit[0][0] + " " + playerCardsSplit[0][2]);}
+else{$("#std1").append("<FONT style=\"color:black;\" size=7>"+playerCardsSplit[0][0] + " " + playerCardsSplit[0][2]);}}
+$("#std1").append("<BR><FONT SIZE=2 color=black>");
+$("#std1").append(playerCardsSplit[0][0] + " " + playerCardsSplit[0][1]);
+$("#std1").append("<BR><FONT SIZE=3 color=black>");
+$("#std1").append("<P>");
+$("#std1").append("<kbd>Value is</kbd> " + playerCardsSplit[0][3]);
+$("#std1").append("<P>");
+$("#std1").append("<kbd>for Player</kbd>");
+$("#tr4").append("</TD>");
+//**end of player cards loop
+}
+
+function split()
+{
+/*the split function... only usable when both of your cards have the same value
+this function compares the value of your cards and determines when to split...
+this function will also make a new table row with its own printcards function
+*/
+if (playerCards[0][0] == playerCards[1][0]) //value check...
+{ //playerCards[0][3] is the first cards value, making playerCards[1][3] the second value
+playerCardsSplit[0] = playerCards[1];  //now we are making this card in a hand independent from the original
+playerAcesTotal = 0;
+playerSplitTotal = 0; //redifining the value of the new hand
+if (playerCardsSplit[playerCards[1][3]] == 11){playerSplitAces = (playerSplitAces + 1);}
+playerSplitAcesTotal = playerSplitTotal;
+issplit = true;
+splitPrint(); //rearranging the card hand...
+}
+}
+
+//**** STAND FUNCTION START DEALS DEALER CARDS ****
+function stand()
+/*Altough we have a "printCards" function, we will print the cards
+differently in the stand function. Why? When the first cards are printed,
+we have a hidden one, thus showing the hidden card in this function*/
+{
+dealerAcesTotal = dealerTotal;
+if (dealerAcesTotal == 22){(dealerAcesTotal = 12);}
+
+//KEEP DEALING CARDS TO THE DEALER WHILE THE HAND IS UNDER 17
+while (dealerAcesTotal < 17)
+{
+randA = Math.floor((Math.random()*52)+1);//for the dealer
+dealerCards[dealerHits] = card[randA];
+dealerTotal = (dealerTotal + dealerCards[dealerHits][3]);
+if (dealerCards[dealerHits][3] == 11){dealerAces = (dealerAces + 1);}
+dealerHits = (dealerHits + 1);
+dealerAcesTotal = dealerTotal;
+
+//LOOP THROUGH ANY ACRES IN DEALER HAND AND DISCOUNT 10 IF REQUIRED TO KEEP HAND UNDER 21
+for (i = 0; i< dealerAces; i++)
+{
+if (dealerAcesTotal > 21){dealerAcesTotal = (dealerAcesTotal - 10);}
+}
+}
+//end of KEEP DEALING CARDS TO THE DEALER
+
+
+//PRINT THE FINAL SCREEN FOR THE HAND WITH THE CARDS, TOTALS AND A DEAL BUTTON FOR A NEW HAND
+//**GAME END**
+if (issplit == false) //if you only have one hand...
+{
+document.open();
+document.clear();
+//start the table for the card cell loops
+document.write("<BODY bgcolor=green><TABLE BORDER=0 CELLSPACING=10><TR>");
+
+//***print dealer cards in a loop
+for (i = 0; i< dealerHits; i++)
+{
+//start the table cell
+document.write("<TD style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (dealerCards[i][2] == "♥"){document.write("<FONT SIZE=7 color=red>");}else{
+if (dealerCards[i][2] == "♦"){document.write("<FONT SIZE=7 color=red>");}
+else{document.write("<FONT SIZE=7 color=black>");}}
+//create the card
+document.write(dealerCards[i][0] + " " + dealerCards[i][2]);
+document.write("<BR><FONT SIZE=2 color=black>");
+document.write(dealerCards[i][0] + " " + dealerCards[i][1]);
+document.write("<BR><FONT SIZE=3 color=black>");
+document.write("<P>");
+document.write("<kbd>Value is " + dealerCards[i][3]);
+document.write("<P>");
+document.write("<kbd>for Dealer");
+document.write("</TD>");
+}
+//***end dealer cards loop
+
+//CHECK TO SEE WHO WON THE HAND
+if (playerAcesTotal > 21){currentBank = (currentBank - bet); handText = "You Busted!"}
+else{if (dealerAcesTotal > 21){currentBank = (currentBank + bet); handText = "Dealer Busted!";}else{if (dealerAcesTotal < playerAcesTotal){currentBank = (currentBank + bet); handText = "You Win!";}else{if (dealerAcesTotal > playerAcesTotal){currentBank = (currentBank - bet); handText = "Dealer Wins!";}else{handText = "It's a Push!";}}}}
+
+//add a new row for totals and DEAL button
+document.write("</TR><TR><TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Dealer = " + dealerAcesTotal + "</TD>");
+document.write("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player = " + playerAcesTotal + "</TD>");
+document.write("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">BET = $" + bet + "</TD>");
+document.write("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">" + handText + "<BR>"+ name +"'s&nbsp;Bank: $" + currentBank + "</TD>");
+document.write("<TD align=center><FONT color=white><kbd><button onclick=\"\dealCards\(\)\">Deal</button></TD>");
+document.write("</TR><TR>");
+
+//document.write("<font color=white><kbd>Bank: $" + currentBank);
+
+//***print player cards in a loop
+for (i = 0; i < playerHits; i++)
+{
+//start the table cell
+document.write("<TD style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCards[i][2] == "♥"){document.write("<FONT SIZE=7 color=red>");}else{
+if (playerCards[i][2] == "♦"){document.write("<FONT SIZE=7 color=red>");}
+else{document.write("<FONT SIZE=7 color=black>");}}
+//printing player cards
+document.write(playerCards[i][0] + " " + playerCards[i][2]);
+document.write("<BR><FONT SIZE=2 color=black>");
+document.write(playerCards[i][0] + " " + playerCards[i][1]);
+document.write("<BR><FONT SIZE=3 color=black>");
+document.write("<P>");
+document.write("<kbd>Value is</kbd> " + playerCards[i][3]);
+document.write("<P>");
+document.write("<kbd>for Player</kbd>");
+document.write("</TD>");
+//**end of player cards loop
+}
+//finish the page HTML
+document.write("</TR></TABLE></BODY></HTML>");
+
+//****END OF PRINT CARDS TO FINISH HAND SCREEN
+document.close();
+return;
+}
+
+if (issplit == true) { //if you have 2 (split) hands...
+document.open();
+document.clear();
+document.write("</kbd></font>");
+//start the table for the card cell loops
+document.write("<BODY bgcolor=green>");
+document.write("<table cellspacing=10><tr id=\"tr1\"><tr id=\"tr2\"><tr id=\"tr3\"><tr id=\"tr4\"></table>");
+//***print dealer cards
+//NOTE THAT THE DEALER ROW WILL NOT SPLIT, ONLY YOU ARE SPLITTING YOUR HAND
+//start the first dealer table cell
+for (i = 0; i < dealerHits; i++)
+{
+$("#tr1").append("<TD id='dtd" + i + "' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (dealerCards[i][2] == "♥"){$("#dtd"+i).append("<FONT style=\"color:red;\" size=7>"+dealerCards[i][0] + " " + dealerCards[i][2]);}else{
+if (dealerCards[i][2] == "♦"){$("#dtd"+i).append("<FONT style=\"color:red;\" size=7>"+dealerCards[i][0] + " " + dealerCards[i][2]);}
+else{$("#dtd"+i).append("<FONT style=\"color:black;\" size=7>"+dealerCards[i][0] + " " + dealerCards[i][2]);}}
+//writing dealer cards...
+$("#dtd"+i).append("<BR><FONT SIZE=2 color=black>");
+$("#dtd"+i).append(dealerCards[i][0] + " " + dealerCards[i][1]);
+$("#dtd"+i).append("<BR><FONT SIZE=3 color=black>");
+$("#dtd"+i).append("<P>");
+$("#dtd"+i).append("<kbd>Value is " + dealerCards[i][3]);
+$("#dtd"+i).append("<P>");
+$("#dtd"+i).append("<kbd>for Dealer");
+$("#tr1").append("</TD>");
+}
+//***end dealer cards
+for (i = 0; i < playerAces; i++)
+{
+if (playerAcesTotal > 21){playerAcesTotal = (playerAcesTotal - 10);}
+}
+for (i = 0; i < playerSplitAces; i++)
+{
+if (playerSplitTotal > 21){playerSplitTotal = (playerSplitTotal - 10);}
+}
+//CHECK TO SEE WHO WON THE HAND
+currentBank = (currentBank * 1); //making sure the bank is an int
+bet = (bet *2);
+if (playerAcesTotal > 21){won = "no"}
+else{if (dealerAcesTotal > 21){won = "yes";}else{if (dealerAcesTotal < playerAcesTotal){won = "yes";}else{if (dealerAcesTotal > playerAcesTotal){won = "no";}else{won = "half";}}}}
+if (won == "no") {
+handWon = false;
+}
+if (won == "yes") {
+handWon = true;
+}
+if (won == "half") {
+handPush = true;
+}
+//CHECK TO SEE WHO WON THE HAND FOR THE SECOND ROW
+if (playerSplitTotal > 21){won = "no"}
+else{if (dealerAcesTotal > 21){won = "yes";}else{if (dealerAcesTotal < playerSplitTotal){won = "yes";}else{if (dealerAcesTotal > playerSplitTotal){won = "no";}else{won = "half";}}}}
+if (won == "no") {
+hand2Won = false;
+}
+if (won == "yes") {
+hand2Won = true;
+}
+if (won == "half") {
+hand2Push = true;
+}
+if (handWon == true, hand2Won == false) {
+currentBank = currentBank * 1; //no money gained or lost
+handText = "Push!";
+}
+if (handWon == false, hand2Won == true) {
+currentBank = currentBank * 1; //no money gained or lost
+handText = "Push!";
+}
+if (handWon == true, hand2Won == true) {
+currentBank = currentBank + bet; //double the money gained
+handText = "You win!";
+}
+if (handWon == false, hand2Won == false, handPush = false, hand2Push = false) {
+currentBank = currentBank - bet; //double the money lost
+handText = "Dealer wins!";
+}
+if (handWon == false, hand2Won == false, handPush = true, hand2Push = true) {
+currentBank = currentBank * 1; //no money gained or lost
+handText = "Push!";
+}
+if (handWon == true, hand2Won == false) {
+currentBank = currentBank * 1; //no money gained or lost
+handText = "Push!";
+}
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Dealer = " + dealerAcesTotal + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player = " + playerAcesTotal + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player (Row 2) = " + playerSplitTotal + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">BET = $" + bet + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">" + handText + "<BR>"+ name +"'s&nbsp;Bank: $" + currentBank + "</TD>");
+$("#tr2").append("<TD align=center><FONT color=white><kbd><button onclick=\"\dealCards\(\)\">Deal</button></TD>");
+//start the table cell
+//printing the cards in the first player row
+for (i = 1; i < playerHits; i++)
+{
+$("#tr3").append("<TD id='ptd" + i + "' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCards[i][2] == "♥"){$("#ptd"+i).append("<FONT style=\"color:red;\" size=7>"+playerCards[i][0] + " " + playerCards[i][2]);}else{
+if (playerCards[i][2] == "♦"){$("#ptd"+i).append("<FONT style=\"color:red;\" size=7>"+playerCards[i][0] + " " + playerCards[i][2]);}
+else{$("#ptd"+i).append("<FONT style=\"color:black;\" size=7>"+playerCards[i][0] + " " + playerCards[i][2]);}}
+//print player cards
+//the first card...
+$("#ptd"+i).append("<BR><FONT SIZE=2 color=black>");
+$("#ptd"+i).append(playerCards[i][0] + " " + playerCards[i][1]);
+$("#ptd"+i).append("<BR><FONT SIZE=3 color=black>");
+$("#ptd"+i).append("<P>");
+$("#ptd"+i).append("<kbd>Value is</kbd> " + playerCards[i][3]);
+$("#ptd"+i).append("<P>");
+$("#ptd"+i).append("<kbd>for Player</kbd>");
+$("#tr3").append("</TD>");
+}
+//the second row...
+for (i = 0; i < playerSplitHits; i++)
+{
+$("#tr4").append("<TD id='std" + i + "' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+if (playerCardsSplit[i][2] == "♥"){$("#std"+i).append("<FONT style=\"color:red;\" size=7>"+playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}else{
+if (playerCardsSplit[i][2] == "♦"){$("#std"+i).append("<FONT style=\"color:red;\" size=7>"+playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}
+else{$("#std"+i).append("<FONT style=\"color:black;\" size=7>"+playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}}
+$("#std"+i).append("<BR><FONT SIZE=2 color=black>");
+$("#std"+i).append(playerCardsSplit[i][0] + " " + playerCardsSplit[i][1]);
+$("#std"+i).append("<BR><FONT SIZE=3 color=black>");
+$("#std"+i).append("<P>");
+$("#std"+i).append("<kbd>Value is</kbd> " + playerCardsSplit[i][3]);
+$("#std"+i).append("<P>");
+$("#std"+i).append("<kbd>for Player</kbd>");
+$("#tr4").append("</TD>");
+//**end of player cards loop
+}
+}
+}
+//**END OF STAND FUNCTION**
+
+function hitMe(){playerHit();} //sort of a test for the browser...
+//****PLAYER HITS FOR A NEW CARD****
+function playerHit()
+{
+//if your hand is not in a split...
+if (issplit == false) {
+randA = Math.floor((Math.random()*52)+1);//for the player
+playerCards[playerHits] = card[randA];
+playerTotal = (playerTotal + playerCards[playerHits][3]);
+if (playerCards[playerHits][3] == 11){playerAces = (playerAces + 1);}
+playerHits = (playerHits + 1);
+playerAcesTotal = playerTotal;
+// run a loop for as many aces in the hand
+//if the playerTotal is over 21 deduc
+for (i = 0; i< playerAces; i++)
+{
+if ( playerAcesTotal > 21){playerAcesTotal = (playerAcesTotal - 10);}
+}
+printCards();
+//document.close();
+//return;
+}
+//end
+//if your hand IS in a split...
+if (issplit == true)
+{
+randA = Math.floor((Math.random()*52)+1);//for the players first row
+playerCards[playerHits] = card[randA];
+if (playerCards[playerHits][3] == 11){playerAces = (playerAces + 1);}
+playerHits = (playerHits + 1);
+randB = Math.floor((Math.random()*52)+1);//for the players second row
+playerCardsSplit[playerSplitHits] = card[randB];
+if (playerCardsSplit[playerSplitAcesHits][3] == 11){playerSplitAces = (playerSplitAces + 1);}
+playerSplitHits = (playerSplitHits + 1);
+// run a loop for as many aces in the hand
+//if the playerTotal is over 21 deduc
+for (i = 0; i< playerAces; i++)
+{
+if ( playerTotal > 21){playerTotal = (playerTotal - 10);}
+}
+for (i = 0; i< playerSplitAces; i++)
+{
+if ( playerSplitTotal > 21){playerSplitTotal = (playerSplitTotal - 10);}
+}
+//appending a new card to the split hand using JQuery
+splitPrint();
+$(document).ready(function(){
+for (i = 2; i < playerHits; i++)
+{
+$("#tr3").append("<TD id='sp" + i + "' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCards[i][2] == "♥"){$("#sp"+i).append("<FONT style=\"color:red;\" size=7>" + playerCards[i][0] + " " + playerCards[i][2]);}else{
+if (playerCards[i][2] == "♦"){$("#sp"+i).append("<FONT style=\"color:red;\" size=7>" + playerCards[i][0] + " " + playerCards[i][2]);}
+else{$("#sp"+i).append("<FONT style=\"color:black;\" size=7>" + playerCards[i][0] + " " + playerCards[i][2]);}}
+//writing player cards...
+$("#sp"+i).append("<BR><FONT SIZE=2 color=black>");
+$("#sp"+i).append(playerCards[i][0] + " " + playerCards[i][1]);
+$("#sp"+i).append("<BR><FONT SIZE=3 color=black>");
+$("#sp"+i).append("<P>");
+$("#sp"+i).append("<kbd>Value is</kbd> " + playerCards[i][3]);
+$("#sp"+i).append("<P>");
+$("#sp"+i).append("<kbd>for Player</kbd>");
+$("#tr3").append("</TD>");
+}
+for (i = 1; i < playerSplitHits; i++)
+{
+$("#tr4").append("<TD id='shp" + i + "' style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCardsSplit[i][2] == "♥"){$("#shp"+i).append("<FONT style=\"color:red;\" size=7>" + playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}else{
+if (playerCardsSplit[i][2] == "♦"){$("#shp"+i).append("<FONT style=\"color:red;\" size=7>" + playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}
+else{$("#shp"+i).append("<FONT style=\"color:black;\" size=7>" + playerCardsSplit[i][0] + " " + playerCardsSplit[i][2]);}}
+//writing player cards...
+$("#shp"+i).append("<BR><FONT SIZE=2 color=black>");
+$("#shp"+i).append(playerCardsSplit[i][0] + " " + playerCardsSplit[i][1]);
+$("#shp"+i).append("<BR><FONT SIZE=3 color=black>");
+$("#shp"+i).append("<P>");
+$("#shp"+i).append("<kbd>Value is</kbd> " + playerCardsSplit[i][3]);
+$("#shp"+i).append("<P>");
+$("#shp"+i).append("<kbd>for Player</kbd>");
+$("#tr4").append("</TD>");
+}
+//**end of player cards loop
+if (playerAcesTotal > 21){stand();}
+if (playerAcesTotal > 21){stand();}
+});
+//document.close();
+//return;
+}
+//end
+}
+
+//****PRINT CARDS TO SCREEN****
+function printCards()
+{
+document.open();
+document.clear();
+document.write("</kbd></font>");
+//start the table for the card cell loops
+document.write("<BODY bgcolor=green><TABLE BORDER=0 CELLSPACING=10><TR>");
+//***print dealer cards
+//start the first card table cell
+document.write("<TD id=\"startcard\" style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=#AC0000 ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+document.write("<font style=\"font-family:sans-serif;color:white;font-size:32px;\">CA1K</font>");
+document.write("</TD>");
+//start the table cell
+document.write("<TD style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (dealerCards[1][2] == "♥"){document.write("<FONT SIZE=7 color=red>");}else{
+if (dealerCards[1][2] == "♦"){document.write("<FONT SIZE=7 color=red>");}
+else{document.write("<FONT SIZE=7 color=black>");}}
+//writing dealer cards...
+document.write(dealerCards[1][0] + " " + dealerCards[1][2]);
+document.write("<BR><FONT SIZE=2 color=black>");
+document.write(dealerCards[1][0] + " " + dealerCards[1][1]);
+document.write("<BR><FONT SIZE=3 color=black>");
+document.write("<P>");
+document.write("<kbd>Value is " + dealerCards[1][3]);
+document.write("<P>");
+document.write("<kbd>for Dealer");
+document.write("</TD>");
+//***end dealer cards
+//add a new row for totals and hit button
+document.write("</TR><TR>");
+document.write("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">Player = " + playerAcesTotal + "</TD>");
+document.write("<TD align=center><FONT color=white><kbd style=\"font-family:sans-serif;text-shadow: 2px 2px 2px #111111;\">BET = $" + bet + "</TD>");
+document.write("<TD align=center><button onclick=\"\hitMe\(\)\">Hit</button></TD>");
+document.write("<TD><button onclick=\"stand\(\)\">Stand</button></TD>");
+document.write("<TD><button onclick=\"split\(\)\">Split</button></TD>");
+document.write("</TR><TR>");
+//***print player cards in a loop
+for (i = 0; i < playerHits; i++)
+{
+//start the table cell
+document.write("<TD style=\"border-radius:5px; box-shadow: 2px 2px 2px #111111;\" BGCOLOR=WHITE ALIGN=CENTER WIDTH=150 HEIGHT=225>");
+//check the card color to set the font
+if (playerCards[i][2] == "♥"){document.write("<FONT SIZE=7 color=red>");}else{
+if (playerCards[i][2] == "♦"){document.write("<FONT SIZE=7 color=red>");}
+else{document.write("<FONT SIZE=7 color=black>");}}
+//writing player cards...
+document.write(playerCards[i][0] + " " + playerCards[i][2]);
+document.write("<BR><FONT SIZE=2 color=black>");
+document.write(playerCards[i][0] + " " + playerCards[i][1]);
+document.write("<BR><FONT SIZE=3 color=black>");
+document.write("<P>");
+document.write("<kbd>Value is</kbd> " + playerCards[i][3]);
+document.write("<P>");
+document.write("<kbd>for Player</kbd>");
+document.write("</TD>");
+//**end of player cards loop
+}
+
+//finish the page HTML
+document.write("</TR></TABLE></BODY></HTML>");
+
+//****END OF PRINT CARDS TO SCREEN
+document.close();
+//if the player busts on-hit, automaticly stand
+if (playerAcesTotal > 21){stand();}
+return;
+}
+
+//**END**
+
+</script>
