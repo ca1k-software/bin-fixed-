@@ -24,10 +24,9 @@ using namespace std;
 #define ABOUT_PROC 2//the trigger for the "about" window
 #define SAVE_PROC 3//save procedure
 #define OPEN_PROC 4//copy procedure
-#define HTML_LOAD 5//html starter layout
-#define NEW_PROC 6//create a new document procedure
-#define SAVE_CUR 7//current save procedure
-#define EMU 8//html emulator(IE API)
+#define NEW_PROC 5//create a new document procedure
+#define SAVE_CUR 6//current save procedure
+#define EMU 7//html emulator(IE API)
 //=========================================================
 
 // [ DEVELOPER FRIENDLY VARIABLES ]
@@ -51,8 +50,6 @@ void makeMenu(HWND hwnd){
     AppendMenuW(hMenu, MF_STRING, SAVE_CUR, L"&Save");
     AppendMenuW(hMenu, MF_STRING, SAVE_PROC, L"&Save as");
     AppendMenuW(hMenu, MF_STRING, OPEN_PROC, L"&Open file");
-    AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
-    AppendMenuW(hMenu, MF_STRING, HTML_LOAD, L"Load HTML layout");
     AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
     AppendMenuW(hMenu, MF_STRING, ABOUT_PROC, L"&About");
     AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
@@ -111,16 +108,6 @@ void saveTextFile(HWND hwnd){
         SetWindowText(hwnd, ofn.lpstrFile);
         CloseHandle(hf);
     }
-}
-
-void insertHTML(HWND hwnd){
-    char buffer[BUFFER_LEN];
-    ifstream file("html_skeleton.html",ifstream::in);
-        if(file.is_open()){
-            file.read(buffer,sizeof(buffer));
-        }
-    file.close();
-    SetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT), buffer);
 }
 
 void saveCurrentTextFile(HWND hwnd){
@@ -192,7 +179,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_SIZE:
             makeEdit(hwnd,winEdit);
         break;
-        case WM_COMMAND://window actions
+        case WM_COMMAND://WINDOW COMMANDS
             switch(LOWORD(wParam))
             {
                 case ABOUT_PROC:
@@ -206,9 +193,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
                 case OPEN_PROC:
                     openTextFile(hwnd);//caching the text, so it can be used later by the current save method
-                break;
-                case HTML_LOAD:
-                    insertHTML(hwnd);
                 break;
                 case NEW_PROC:
                     createNewDoc(hwnd);
