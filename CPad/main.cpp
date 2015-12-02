@@ -1,4 +1,4 @@
-/* 
+/*
  * File: main.cpp
  * Author: CA1K
  *
@@ -26,7 +26,8 @@ using namespace std;
 #define OPEN_PROC 4//copy procedure
 #define NEW_PROC 5//create a new document procedure
 #define SAVE_CUR 6//current save procedure
-#define EMU 7//html emulator(IE API)
+#define HTML_LAY 7//layout HTML
+#define EMU 8//html emulator(IE API)
 //=========================================================
 
 // [ DEVELOPER FRIENDLY VARIABLES ]
@@ -50,6 +51,8 @@ void makeMenu(HWND hwnd){
     AppendMenuW(hMenu, MF_STRING, SAVE_CUR, L"&Save");
     AppendMenuW(hMenu, MF_STRING, SAVE_PROC, L"&Save as");
     AppendMenuW(hMenu, MF_STRING, OPEN_PROC, L"&Open file");
+    AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
+    AppendMenuW(hMenu, MF_STRING, HTML_LAY, L"&Load HTML Layout");
     AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
     AppendMenuW(hMenu, MF_STRING, ABOUT_PROC, L"&About");
     AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
@@ -81,7 +84,7 @@ if(GetWindowRect(hwnd, &rect))
 void saveTextFile(HWND hwnd){
     char buffer[BUFFER_LEN];//buffer
     GetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT), buffer, sizeof(buffer));
-    TCHAR szFilters[] = "Text (.txt)\0*.txt\0HTML Page (.html)\0*.html\0All (.*)\0*.*";
+    TCHAR szFilters[] = "HTML Page (.html)\0*.html\0All (.*)\0*.*";
     TCHAR szFilePathName[sizeof(buffer)] = "";
     OPENFILENAME ofn;
     HANDLE hf;
@@ -99,11 +102,11 @@ void saveTextFile(HWND hwnd){
     ofn.nMaxFileTitle = 0;
     if(GetSaveFileName(&ofn)==TRUE){
         hf = CreateFile(ofn.lpstrFile, GENERIC_WRITE, FILE_SHARE_WRITE,
-        NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL|FILE_ATTRIBUTE_ARCHIVE|SECURITY_IMPERSONATION, 
+        NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL|FILE_ATTRIBUTE_ARCHIVE|SECURITY_IMPERSONATION,
         NULL);
         fstream file;
-        file.open(ofn.lpstrFile,fstream::out);
-        file << buffer;
+        file.open(ofn.lpstrFile,ios::out);
+        file.write(buffer,sizeof(buffer));
         file.close();
         SetWindowText(hwnd, ofn.lpstrFile);
         CloseHandle(hf);
@@ -115,15 +118,25 @@ void saveCurrentTextFile(HWND hwnd){
     char fileText[BUFFER_LEN];
     GetWindowText(hwnd,path,sizeof(path));
     GetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT),fileText,sizeof(fileText));
-    ofstream outfile(path,ofstream::binary);
+    fstream outfile(path,ios::out);
     outfile << fileText;
     outfile.close();
     MessageBox(NULL, path, "File Saved", MB_ICONINFORMATION);
 }
 
+void loadHTMLLayout(HWND hwnd){
+    char buffer[BUFFER_LEN];
+    ifstream file("html_lay.html",ios::in);;
+    file.read(buffer,sizeof(buffer));
+    file.close();
+    SetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT), buffer);
+}
+
 void openTextFile(HWND hwnd){
     char buffer[BUFFER_LEN];
-    TCHAR szFilters[] = "Text (.txt)\0*.txt\0HTML Page (.html)\0*.html\0All (.*)\0*.*";
+    string app;
+    string target;
+    TCHAR szFilters[] = "HTML Page (.html)\0*.html\0All (.*)\0*.*";
     TCHAR szFilePathName[sizeof(buffer)] = "";
     OPENFILENAME ofn;
     DWORD dwWritten = 0;
@@ -142,14 +155,20 @@ void openTextFile(HWND hwnd){
     ofn.nMaxFileTitle = 0;
     if(GetOpenFileName(&ofn)==TRUE){
         hf = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ,
-        NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL|FILE_ATTRIBUTE_ARCHIVE|SECURITY_IMPERSONATION, 
+        NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL|FILE_ATTRIBUTE_ARCHIVE|SECURITY_IMPERSONATION,
         NULL);
-        fstream file;
-        file.open(ofn.lpstrFile,fstream::in);
-        file.read(buffer,sizeof(buffer));
+        ifstream file;
+        file.open(ofn.lpstrFile,ios::in);
+        while(file.good()){//build together a string to convert into a char array
+            file >> app;
+            string add = " " + app;
+            target += add;
+        }
+        char superBuffer[target.length()];
+        strcpy(superBuffer,target.c_str());
         file.close();
         SetWindowText(hwnd, ofn.lpstrFile);
-        SetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT), buffer);
+        SetWindowText(GetDlgItem(hwnd,IDC_MAIN_EDIT), superBuffer);
         CloseHandle(hf);
     }
 }
@@ -189,7 +208,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     PostQuitMessage(0);//exit program
                 break;
                 case SAVE_PROC:
-                    saveTextFile(hwnd); 
+                    saveTextFile(hwnd);
                 break;
                 case OPEN_PROC:
                     openTextFile(hwnd);//caching the text, so it can be used later by the current save method
@@ -199,6 +218,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
                 case SAVE_CUR:
                     saveCurrentTextFile(hwnd);
+                break;
+                case HTML_LAY:
+                    loadHTMLLayout(hwnd);
                 break;
                 case EMU:
                 break;
@@ -251,7 +273,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
- 
+
     // Step 2: Creating the Window
     hwnd = CreateWindowEx(
         WS_EX_CLIENTEDGE,
