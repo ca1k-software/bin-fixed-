@@ -19,6 +19,16 @@ public class IronMain{
   }
   public static void main(String[] args){
     JFrame frame = new JFrame("Welcome to IronSafe");
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
+    JPanel main = new JPanel(new GridLayout(3,1));
+     JPanel banner = new JPanel();
+      banner.setBackground(Color.BLACK);
+        JLabel ban = new JLabel("IronSafe password-keeper developed by CA1K");
+        ban.setFont(new Font("Arial",Font.ITALIC,14));
+        ban.setForeground(Color.WHITE);
+        banner.add(ban);
+      frame.add(banner,BorderLayout.PAGE_START);
      JPanel panel = new JPanel();
       JLabel intro = new JLabel("To begin, press the 'Open' button as it will help you choose a file: ");
        JButton button = new JButton("Open");
@@ -30,9 +40,18 @@ public class IronMain{
        });
      panel.add(intro);
      panel.add(button);
-    frame.add(panel);
+     main.add(panel);
+     JPanel noticePanel = new JPanel();
+     JLabel notice = new JLabel("Notice: In order to move on, you must have an empty text document at the ready");
+     noticePanel.add(notice);
+     main.add(noticePanel);
+     JPanel contactPanel = new JPanel();
+     JLabel contact = new JLabel("Any questions or concerns? E-mail ca1ksoftware@gmail.com");
+     contactPanel.add(contact);
+     main.add(contactPanel);
+    frame.add(main,BorderLayout.CENTER);
     frame.pack();
-    frame.setSize(500,70);
+    frame.setSize(500,180);
     frame.setVisible(true);
     frame.setResizable(false);
   }
