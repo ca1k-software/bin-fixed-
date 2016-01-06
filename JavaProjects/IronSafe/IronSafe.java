@@ -10,7 +10,7 @@ import java.awt.event.*;
 import java.awt.*;
 public class IronSafe{
   public static void OpenSafe(String path){
-    int dim = 500;
+    int dim2 = 500;
     Snatcher s = new Snatcher();
     JFrame frame = new JFrame("IronSafe - Password Keeper");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,13 +38,13 @@ public class IronSafe{
           descA.setFont(new Font("Arial",Font.BOLD,14));
           descA.setForeground(Color.DARK_GRAY);
         ctrlSide.add(descA);
-          JTextField fieldA = new JTextField(dim/10);
+          JTextField fieldA = new JTextField(dim2/10);
         ctrlSide.add(fieldA);
           JLabel descB = new JLabel("   Input password");
           descB.setFont(new Font("Arial",Font.BOLD,14));
           descB.setForeground(Color.DARK_GRAY);
         ctrlSide.add(descB);
-          JTextField fieldB = new JTextField(dim/10);
+          JTextField fieldB = new JTextField(dim2/10);
         ctrlSide.add(fieldB);
           JPanel btnBox = new JPanel();
             JButton add = new JButton("Add");
@@ -68,7 +68,9 @@ public class IronSafe{
       main.add(ctrlSide);
       frame.add(main, BorderLayout.CENTER);
     frame.pack();
-    frame.setSize(dim,dim/2);
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
+    frame.setSize(dim2,dim2/2);
     frame.setVisible(true);
     frame.setResizable(false);
   }
